@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = cv2.imread('test.png')
+rows,cols,ch = img.shape
+
+print("input",rows,cols,ch)
+
+pts1 = np.float32([[0,0],[140,0],[0,70]])
+pts2 = np.float32([[70,140],[70,0],[0,140]])
+
+M = cv2.getAffineTransform(pts1,pts2)
+
+dst = cv2.warpAffine(img,M,(rows,cols),flags=cv2.INTER_NEAREST)
+
+
+cv2.imwrite('affine_out.png', dst)
+
+
+plt.subplot(121),plt.imshow(img),plt.title('Input')
+plt.subplot(122),plt.imshow(dst),plt.title('Output')
+plt.show()

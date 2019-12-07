@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 
 class polygon:
     def __init__(self):
+
         self.poly = list()
         self.poly.append([100.0,200.0])
         self.poly.append([100.0,300.0])
@@ -87,7 +88,6 @@ def main(args):
     print("point3 is : " + str(check))
     check = ply.is_in_polygon([101.0,200.0])
     print("point4 is : " + str(check))
-
 
 
 if __name__ == '__main__':

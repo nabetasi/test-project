@@ -1,0 +1,134 @@
+ss(A,B,C,D):=block(return([A,B,C,D]));
+sysa(sys):=block(return(sys[1]));
+sysb(sys):=block(return(sys[2]));
+sysc(sys):=block(return(sys[3]));
+sysd(sys):=block(return(sys[4]));
+substa(sys,a):=block(sys[1]:a,return(sys));
+msize(mat):=block(return([length(mat),length(transpose(mat))]));
+ssize(sys):=
+    block(
+        [dsize],
+        dsize:msize(transpose(sysd(sys))),
+        return(cons(length(sysa(sys)),dsize))
+    );
+
+similar(sys,T):=
+    block(
+        [A,B,C,D,Tinv],
+        A:sysa(sys), B:sysb(sys), C:sysc(sys), D:sysd(sys),
+        Tinv:invert(T),
+        return(ss(Tinv.A.T, Tinv.B, C.T, D))
+    );
+
+transfer(sys):=
+    block(
+        [buf,n,m,r,transg],
+        buf:ssize(sys), n:buf[1], m:buf[2], r:buf[3],
+        transg:sysc(sys).invert(s*ident(n)-sysa(sys)).sysb(sys)+sysd(sys),
+        transg:ratsimp(transg),
+        if m=1 and r=1 then
+            return((transg[1])[1])
+        else
+            return(transg)
+    );
+
+ctrb(A,B):=
+    block(
+        [V:B,icnt,ndeg:length(A),dum:B],
+        for icnt:1 while icnt<ndeg
+            do(
+                dum:A.dum,
+                V:addcol(V,dum)
+            ),
+        return(V)
+    );
+
+obsv(A,C):=
+    block(
+        return(transpose(ctrb(transpose(A),transpose(C))))
+    );
+
+cpoly(A,x):=
+    block(
+        [cp,buf],
+        cp:expand(charpoly(A,x)),
+        buf:coeff(cp,x,hipow(cp,x)),
+        return(cp/buf)
+    );
+
+coeffs(p,x):=
+    block(
+        [icnt,ppp,cfs:[],ndeg],
+        ppp:expand(p),ndeg:hipow(ppp,x),
+        for icnt:0 thru ndeg
+            do(
+                cfs:cons(coeff(ppp,x,icnt),cfs)
+            ),
+        return(cfs)
+    );
+
+hurwitz_criterion(p):=
+    block(
+        return(hurwitz(hurwitz_mat(p)))
+    );
+
+hurwitz(hmat):=
+    block(
+        [icnt,nnn,hlist,buf],
+        hlist:[determinant(hmat)>0],nnn:length(hmat),
+        for icnt:1 thru nnn-1
+            do(
+                hmat:submatrix(nnn-icnt+1,hmat,nnn-icnt+1),
+                hlist:cons(determinant(hmat)>1,hlist)
+            ),
+        return(hlist)
+    );
+
+hurwitz_mat(p):=
+    block(
+        [icnt,jcnt,kcnt,ndeg,nnn,nnn2,hmat,pcfs,flag],
+        p:expand(p), ndeg:hipow(p,s),pcfs:coeffs(p,s),
+        if evenp(ndeg) then
+            block(
+                pcfs:append(pcfs,[0]),nnn:length(pcfs),
+                nnn2:nnn/2-1,
+                hmat:zeromatrix(nnn2*2,nnn2*2),
+                flag:1
+            )
+        else
+            block(
+                nnn:length(pcfs),nnn2:nnn/2,
+                hmat:zeromatrix(xxx,xxx),
+                flag:0
+            ),
+        for kcnt:1 thru nnn2
+            do(
+                jcnt:1,
+                for  icnf:1 thru nnn/2
+                    do(
+                        hmat[2*kcnt,icnt+(kcnt-1)]:pcfs[jcnt],jcnt:jcnt+1,
+                        hmat[2*kcnt-1,icnt+(kcnt-1)]:pcfs[jcnt],jcnt:jcnt+1
+                    )
+            ),
+        if flag=1 then return(hmat) else return(submatrix(nnn,hmat,nnn))
+    );
+
+place(A,B,P):=
+    block(
+        [V,W,cfs,n,icnt,jcnt,dd,dcfs],
+        V:ctrb(A,B),
+        cfs:coeffs(cpoly(A,s),s),n:length(cfs)-1,dd:1,
+        for icnt:1 while icnt<=n
+            do(dd:dd*(s-P[icnt])),
+        dcfs:coeffs(expand(dd),s),
+        W:zeromatrix(n,n),dd:zeromatrix(1,n),
+        for icnt:1 while icnt<=n
+            do(
+                for jcnt:1 while jcnt<=icnt
+                    do(
+                        W[icnt-jcnt+1,jcnt]:cfs[n-icnt+1]
+                    ),
+                dd[1,icnt]:dcfs[n-icnt+2]-cfs[n-icnt+2]
+            ),
+        return(dd.invert(V.W))
+    );

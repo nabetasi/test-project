@@ -1,0 +1,36 @@
+tank2():=
+    block(
+        local(a11,a12,a21,a22,b1,A,B,C),
+        a11:-1/(C1*R1), a12:1/(C1*R1), a21:1/(C2*R1),
+        a22:-(1/(C2*R1)+1/(C2*R2)), b1:1/C1,
+        A:matrix([a11,a12],[a21,a22]), B:matrix([b1],[0]),
+        C:matrix([0,1]),
+        return(ss(A,B,C,matrix([0])))
+    );
+
+mmodel():=
+    block(
+        local(A,B,C),
+        A:matrix([0,1],[alpha,0]), B:matrix([0],[beta]),
+        C:matrix([1,0]),
+        return(ss(A,B,C,matrix([0])))
+    );
+
+pmodel():=
+    block(
+        local(A,B,C,D,p1,p2),
+        p1:m*L/(J+m*L*L), p2:mus/(J+m*L*L),
+        A:matrix([0,0,1,0],[0,0,0,1],[0,0,-zz,0],[0,-p1*g,p1*zz,p2]),
+        B:matrix([0],[0],[xi],[-p1*xi]),
+        C:matrixc([1,0,0,0],[0,1,0,0]),
+        D:matrix([0],[0]),
+        return(ss(A,B,C,D))
+    );
+
+comp3():=
+    block(
+        [A,B,C,D],
+        A:matrix([0,1,0],[0,0,1][-a3,-a2,-a1]),
+        B:matrix([0],[0],[b1]), C:matrix([1,0,0]), D:matrix([0]),
+        return(ss(A,B,C,D))
+    );
