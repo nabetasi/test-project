@@ -14,6 +14,7 @@ import java.util.*
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,7 +33,7 @@ class MainActivity : AppCompatActivity() {
             usernameText.text = username
             hostnameText.text = hostname
             SshTask().execute(username, hostname)
-            //val output = executeRemoteCommand( username, "****", hostname)
+            //val output = executeRemoteCommand( username, "wssrk0hk", hostname)
             //myLabel.text = output
         }
 
@@ -65,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 
     class SshTask : AsyncTask<String, Void, String>() {
         override fun doInBackground(vararg params: String): String {
-            val output = executeRemoteCommand(params[0], "h****", params[1])
+            val output = executeRemoteCommand(params[0], "wssrk0hk", params[1])
             print(output)
             return output
         }
@@ -77,30 +78,73 @@ fun executeRemoteCommand(username: String,
                          hostname: String,
                          port: Int = 22): String {
     val jsch = JSch()
-    val session = jsch.getSession(username, hostname, port)
-    session.setPassword(password)
+    try {
+        val session = jsch.getSession(username, hostname, port)
+        session.setPassword(password)
 
-    //Avoid asking for key confirmation
-    val properties = Properties()
-    properties.put("StrictHostKeyChecking", "no")
-    session.setConfig(properties)
+        //Avoid asking for key confirmation
+        val properties = Properties()
+        properties.put("StrictHostKeyChecking", "no")
+        session.setConfig(properties)
 
-    session.connect()
+        session.connect()
 
-    //Create SSH Channel
-    val sshChannel = session.openChannel("exec") as ChannelExec
-    val outputStream = ByteArrayOutputStream()
-    sshChannel.outputStream = outputStream
+        //Create SSH Channel
+        val sshChannel = session.openChannel("exec") as ChannelExec
+        val outputStream = ByteArrayOutputStream()
+        sshChannel.outputStream = outputStream
 
-    //Execute command
-    sshChannel.setCommand("ls")
-    sshChannel.connect()
+        //Execute command
+        sshChannel.setCommand("ls -al")
+        sshChannel.connect()
 
-    //Sleep needed in order to wait long enough to get result back
-    Thread.sleep(1_000)
-    sshChannel.disconnect()
+        //Sleep needed in order to wait long enough to get result back
+        Thread.sleep(1_000)
+        sshChannel.disconnect()
 
-    session.disconnect()
+        session.disconnect()
 
-    return outputStream.toString()
+        return outputStream.toString()
+    } catch (e: Exception) {
+        print(e)
+        return "fail"
+    }
+}
+
+fun executeHotSpotCommand(username: String,
+                         password: String,
+                         hostname: String,
+                         port: Int = 22): Boolean {
+    val jsch = JSch()
+    try {
+        val session = jsch.getSession(username, hostname, port)
+        session.setPassword(password)
+
+        //Avoid asking for key confirmation
+        val properties = Properties()
+        properties.put("StrictHostKeyChecking", "no")
+        session.setConfig(properties)
+
+        session.connect()
+
+        //Create SSH Channel
+        val sshChannel = session.openChannel("exec") as ChannelExec
+        val outputStream = ByteArrayOutputStream()
+        sshChannel.outputStream = outputStream
+
+        //Execute command
+        sshChannel.setCommand("ls -al")
+        sshChannel.connect()
+
+        //Sleep needed in order to wait long enough to get result back
+        Thread.sleep(1_000)
+        sshChannel.disconnect()
+
+        session.disconnect()
+        return true
+    } catch (e:Exception) {
+        print(e)
+        return false
+    }
+
 }

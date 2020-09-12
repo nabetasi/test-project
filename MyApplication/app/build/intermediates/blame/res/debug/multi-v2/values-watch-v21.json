@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/home/nabeta/AndroidStudioProjects/MyApplication/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-watch-v21/values-watch-v21.xml",
+            "outputFile": "/home/nabeta/development/test-project/MyApplication/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-watch-v21/values-watch-v21.xml",
             "map": [
                 {
-                    "source": "/home/nabeta/.gradle/caches/transforms-2/files-2.1/8a90935574f82694cec42fb7c78743b1/appcompat-1.0.2/res/values-watch-v21/values-watch-v21.xml",
+                    "source": "/home/nabeta/.gradle/caches/transforms-2/files-2.1/f4ceafa7ef841920b93751825c24895a/appcompat-1.0.2/res/values-watch-v21/values-watch-v21.xml",
                     "from": {
                         "startLines": "2,6,10",
                         "startColumns": "4,4,4",
